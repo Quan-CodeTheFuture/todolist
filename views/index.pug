@@ -1,0 +1,38 @@
+head
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css")
+    link(rel="stylesheet", href="/task/style.css", attr)
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no")
+    script(src="https://kit.fontawesome.com/fc3d47a9a9.js")
+body
+    .sidebar
+    .todo-app
+        h1 todos
+        .container
+            .form.d-flex
+                button#select-all.btn.btn-group-toggle(data-toggle='buttons')
+                    label.btn.btn-primary
+                        | \/
+                input#post-create(type="text" placeholder="What needs to be done")
+            .post-list
+                each task in tasksList
+                    .container-post
+                        if task.isDone === false
+                            .button-check
+                                i.far.fa-circle(aria-hidden='true')
+                            span.text-post-list
+                                p= task.title
+                        else
+                            .button-check
+                                i.fas.fa-check-circle(aria-hidden='true')
+                            span.text-post-list
+                                s= task.title
+                        .delete-button
+                            i(class="fas fa-times")
+
+    script(src="/task/check-circle.js"  type="text/javascript")    
+    script(src="/task/check-line-through.js"  type="text/javascript")   
+    script(src="/task/change-input.js" type="text/javascript") 
+    script(src="/task/select-all.js" type="text/javascript")
+    script(src="/task/delete-post.js" type="text/javascript")
+    script(src="/task/post-create.js" type="text/javascript")
