@@ -13,6 +13,7 @@
 
 s, p {
     margin: 0;
+    display:inline;
 }
 
 .todo-app h1{

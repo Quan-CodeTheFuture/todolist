@@ -19,20 +19,16 @@ body
                     .container-post
                         if task.isDone === false
                             .button-check
-                                i.far.fa-circle(aria-hidden='true')
+                                i.far.fa-circle(aria-hidden='true' id = task.id)
                             span.text-post-list
                                 p= task.title
                         else
                             .button-check
-                                i.fas.fa-check-circle(aria-hidden='true')
+                                i.fas.fa-check-circle(aria-hidden='true' id = task.id)
                             span.text-post-list
                                 s= task.title
                         .delete-button
-                            i(class="fas fa-times")
-
-    script(src="/task/check-circle.js"  type="text/javascript")    
-    script(src="/task/check-line-through.js"  type="text/javascript")   
-    script(src="/task/change-input.js" type="text/javascript") 
-    script(src="/task/select-all.js" type="text/javascript")
-    script(src="/task/delete-post.js" type="text/javascript")
+                            i(class="fas fa-times" id=task.id)
+            #delete-all-completed-button.btn.btn-primary Delete All Completed
+    script(src="https://unpkg.com/axios/dist/axios.min.js")
     script(src="/task/post-create.js" type="text/javascript")

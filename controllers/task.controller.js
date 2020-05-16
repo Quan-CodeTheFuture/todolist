@@ -14,30 +14,40 @@ module.exports.getAPI = async(req,res) => {
             title: task.title,
             isDone:task.isDone
         }
-    })
-    res.json(data)
+    });
+    res.json(data);
 }
 
 module.exports.postTaskWeb = async (req,res) => {
-    let data ={
-        status:true
-    }
-    if(req.body.request==="delete"){
-        await Task.deleteOne({_id:req.body.id});
-    } else {
+    if(req.body.request === "create"){
+        let result = await Task.create({
+            title: req.body.content,
+            isDone: false
+        });
+        res.json({
+            id:result.id
+        });
+    } else if(req.body.request === "edit") {
         if(req.body.id){
-            await Task.replaceOne({_id: req.body.id},{
-                title: req.body.title,
-                isDone: req.body.isDone   
+            await Task.findOneAndUpdate({_id:req.body.id},{
+                isDone: req.body.isDone
             });
-        } else {
-            await Task.create({
-                title: req.body.title,
-                isDone: req.body.isDone   
-            })
-            let taskList = await Task.find();
-            data.id = taskList[taskList.length - 1].id;
-        }
+        };
+    } else if(req.body.request === "delete"){
+        await Task.deleteOne({_id:req.body.id});
+    } else if(req.body.request === "editTitle"){
+        await Task.findOneAndUpdate({_id:req.body.id},{
+            title:req.body.title,
+            isDone:false,
+        })
+    } else if(req.body.request === "allDone"){
+        await Task.updateMany({isDone:false},{
+            isDone:true,
+        })
+    } else if (req.body.request === "allNotDone"){
+        await Task.updateMany({isDone:true},{
+            isDone:false,
+        });
     }
-    res.json(data);
+    res.status(200).end();
 }
