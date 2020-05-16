@@ -2,22 +2,108 @@ let postCreate = document.getElementById("post-create");
 let postList = document.getElementsByClassName("post-list")[0];
 let deleteAllCompleted = document.getElementById("delete-all-completed-button");
 let selectAll = document.getElementById("select-all");
+let buttonActive = document.getElementById("active-button");
+let buttonAll = document.getElementById("all-button");
+let buttonCompleted = document.getElementById("completed-button");
+let itemLeft = document.getElementById("item-left");
+let mode = "all";
+let redundant = 0;
+let leftItem = [];
+
 function moveCursorToEnd(el) {
-    if (typeof el.selectionStart == "number") {
-        el.selectionStart = el.selectionEnd = el.value.length;
-    } else if (typeof el.createTextRange != "undefined") {
-        el.focus();
-        var range = el.createTextRange();
-        range.collapse(false);
-        range.select();
-    }
+    el.selectionStart = el.selectionEnd = el.value.length;
 }
+
+buttonActive.addEventListener("click", ()=>{
+    mode = "active";
+})
+
+buttonCompleted.addEventListener("click", ()=>{
+    mode = "completed"
+})
+
+buttonAll.addEventListener("click", ()=>{
+    mode = "all";
+})
+
+setInterval(()=>{
+    if(leftItem.length >= 0){
+        let arr = [...postList.children];
+        let arr2 = arr.map(child => {
+            return child.children[1].children[0].tagName
+        })
+        let check = arr2.indexOf("S") !== -1 ? true : false;
+        if(check === false){
+            deleteAllCompleted.style.display = "none";
+        } else {
+            deleteAllCompleted.style.display = "inline";
+        }
+        if(arr.length === 0 || !postList){
+            selectAll.style.display = "none";
+            deleteAllCompleted.style.display = "none";
+            buttonActive.style.display = "none";
+            buttonAll.style.display = "none";
+            buttonCompleted.style.display = "none";
+            itemLeft.style.display = "none";
+        } else {
+            selectAll.style.display = "inline";
+            buttonActive.style.display = "inline";
+            buttonAll.style.display = "inline";
+            buttonCompleted.style.display = "inline";
+            itemLeft.style.display = "block";
+        }
+
+        arr.forEach(child =>{
+            if(child.children[1].children[0].tagName === "P"){
+                leftItem.push(null);
+            }
+        })
+        itemLeft.innerHTML = (leftItem.length+redundant).toString() + " items left";
+        leftItem = [];
+    }
+    //////////////////////
+    if(mode === "all"){
+        let arr = [...postList.children]
+        arr.forEach((child) => {
+            child.style.display = "flex";
+        })
+        buttonAll.className = "btn btn-lg btn-dark";
+        buttonActive.className = "btn btn-danger"
+        buttonCompleted.className = "btn btn-danger";
+    } else if(mode === "completed") {
+        let arr = [...postList.children];
+        arr.forEach(child => {
+            if(child.children[0].children[0].className !== "fas fa-check-circle"){
+                child.style.display = "none";
+            } else {
+                child.style.display = "flex";
+            };
+        })
+        buttonCompleted.className = "btn btn-lg btn-dark";
+        buttonActive.className = "btn btn-danger";
+        buttonAll.className = "btn btn-danger";
+    } else if (mode === "active"){
+        let arr = [...postList.children];
+        arr.forEach(child => {
+            if(child.children[0].children[0].className !== "far fa-circle"){
+                child.style.display = "none";
+            } else {
+                child.style.display = "flex";
+            };
+        })
+        buttonActive.className = "btn btn-lg btn-dark";
+        buttonAll.className = "btn btn-danger"
+        buttonCompleted.className = "btn btn-danger";
+    }
+},100);
 
 postCreate.addEventListener("keyup",async(event) => {
     if(event.keyCode === 13){
         if(postCreate.value===""){
             return;
         }
+        let text = postCreate.value;
+        postCreate.value = "";
         let textId = await axios({
             method:"POST",
             url:'/',
@@ -34,15 +120,13 @@ postCreate.addEventListener("keyup",async(event) => {
                 </i>
             </div>
             <span class="text-post-list">
-                <p>${postCreate.value}</p>
+                <p>${text}</p>
             </span>
             <div class="delete-button">
                 <i class="fas fa-times" id="${textId.data.id}"></i>
             </div>
         </div>
         `
-
-        postCreate.value = "";
     }
 })
 
@@ -108,7 +192,7 @@ document.addEventListener("dblclick",()=>{
         moveCursorToEnd(textPostList.children[0]);
         let buttonCheck = inputText.parentElement.children[0];
         buttonCheck.style.display = "none";
-
+        redundant = 1;
     } else if(event.target.tagName === "SPAN" && event.target.className === "text-post-list" && event.target.children[0].tagName === "P") {
         let textPostList = event.target;
         textPostList.innerHTML = `<input id="task" value="`+ textPostList.outerText + `"/>`;
@@ -117,6 +201,7 @@ document.addEventListener("dblclick",()=>{
         moveCursorToEnd(textPostList.children[0]);
         let buttonCheck = inputText.parentElement.children[0];
         buttonCheck.style.display = "none";
+        redundant = 1;
     }
 })
 
@@ -138,7 +223,7 @@ document.addEventListener("click",(event) => {
                     title:text
                 }
             })
-
+            redundant = 0;
             inputText = undefined;
         };
     }
@@ -152,6 +237,7 @@ document.addEventListener("keyup",(event) => {
             let buttonCheck = inputText.parentElement.children[0];
             buttonCheck.style.display = "block";
             inputText = undefined;
+            redundant = 0;
             axios({
                 method: "POST",
                 url:"/",
@@ -199,24 +285,6 @@ selectAll.addEventListener("click",() => {
     }
 })
 
-setInterval(()=>{
-    let arr = [...postList.children]
-    let arr2 = arr.map(child => {
-        return child.children[1].children[0].tagName
-    })
-    let check = arr2.indexOf("S") !== -1 ? true : false;
-    if(check === false){
-        deleteAllCompleted.style.display = "none";
-    } else {
-        deleteAllCompleted.style.display = "block";
-    }
-    if(arr.length === 0 || !postList){
-        selectAll.style.display = "none";
-        deleteAllCompleted.style.display = "none";
-    } else {
-        selectAll.style.display = "inline";
-    }
-},1000);
 deleteAllCompleted.addEventListener("click",()=>{
     let postListArr = [...postList.children];
     postListArr.forEach(child => {

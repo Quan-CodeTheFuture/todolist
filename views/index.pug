@@ -29,6 +29,13 @@ body
                                 s= task.title
                         .delete-button
                             i(class="fas fa-times" id=task.id)
-            #delete-all-completed-button.btn.btn-primary Delete All Completed
+
+            .button-option
+                #all-button.btn.btn-danger(type="submit") All
+                #active-button.btn.btn-danger(type="submit") Active
+                #completed-button.btn.btn-danger(type="submit") Completed
+            .button-delete
+                #delete-all-completed-button.btn.btn-info(type="submit") Delete All Completed
+            span#item-left
     script(src="https://unpkg.com/axios/dist/axios.min.js")
     script(src="/task/post-create.js" type="text/javascript")
