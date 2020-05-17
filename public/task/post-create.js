@@ -98,6 +98,7 @@ setInterval(()=>{
 },100);
 
 postCreate.addEventListener("keyup",async(event) => {
+    let postList = event.target.parentElement.parentElement.children[1]
     if(event.keyCode === 13){
         if(postCreate.value===""){
             return;
@@ -108,7 +109,7 @@ postCreate.addEventListener("keyup",async(event) => {
             method:"POST",
             url:'/',
             data:{
-                content:text,
+                // content:text,
                 request:"create"
             }
         })
@@ -127,42 +128,58 @@ postCreate.addEventListener("keyup",async(event) => {
             </div>
         </div>
         `
+        postListArr = [...postList.children];
+        postListArr = postListArr.map((containerPost) => {
+            let isDone = containerPost.children[0].children[0].className === "far fa-circle" ? false: true;
+            return {
+                id: containerPost.children[0].children[0].id,
+                title:containerPost.children[1].children[0].outerText,
+                isDone:isDone
+            }
+        })
+        axios({
+            method:"POST",
+            url:"/",
+            data:{
+                request:"create exactly",
+                tasksList:postListArr
+            }
+        })
     }
 })
 
 document.addEventListener("click",async(event)=>{
     let isDone = false;
+    let containerTextPostList = event.target.parentElement.parentElement.children[1];
     if(event.target.tagName === "I"){
         if(event.target.className === "far fa-circle"){
-            let containerTextPostList = event.target.parentElement.parentElement.children[1];
             let text = containerTextPostList.children[0].outerText;    
             event.target.className = "fas fa-check-circle";
             containerTextPostList.innerHTML = "<s>"+text+"</s>";
             isDone = true;
-            axios({
-                method: "POST",
-                url:"/",
-                data:{
-                    request:"edit",
-                    id:event.target.id,
-                    isDone:isDone
-                }
-            })    
         } else if (event.target.className === "fas fa-check-circle") {
-            let containerTextPostList = event.target.parentElement.parentElement.children[1];
             let text = containerTextPostList.children[0].outerText;    
             event.target.className = "far fa-circle";
             containerTextPostList.innerHTML = "<p>"+text+"</p>";
-            axios({
-                method: "POST",
-                url:"/",
-                data:{
-                    request:"edit",
-                    id:event.target.id,
-                    isDone:isDone
-                }
-            })
         }
+        let postList = containerTextPostList.parentElement.parentElement
+        postListArr = [...postList.children];
+        postListArr = postListArr.map((containerPost) => {
+            let isDone = containerPost.children[0].children[0].className === "far fa-circle" ? false: true;
+            return {
+                id: containerPost.children[0].children[0].id,
+                title:containerPost.children[1].children[0].outerText,
+                isDone:isDone
+            }
+        })
+        axios({
+            method:"POST",
+            url:"/",
+            data:{
+                request:"edit",
+                tasksList:postListArr
+            }
+        })
     }
 })
 
