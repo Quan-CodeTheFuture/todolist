@@ -6,36 +6,49 @@ head
     script(src="https://kit.fontawesome.com/fc3d47a9a9.js")
 body
     .sidebar
+        - let n = 0
+        h1 My todolist
+        ol
+            while n < 11
+                li 
+                    h5 Why use this product
+                ul
+                    li Help you memorize every tasks
+                    li Nice interface
+                    li Familiar with user
+                - n++
+        
     .todo-app
-        h1 todos
-        .container
-            .form.d-flex
-                button#select-all.btn.btn-group-toggle(data-toggle='buttons')
-                    label.btn.btn-primary
-                        | \/
-                input#post-create(type="text" placeholder="What needs to be done")
-            .post-list
-                each task in tasksList
-                    .container-post
-                        if task.isDone === false
-                            .button-check
-                                i.far.fa-circle(aria-hidden='true' id = task.id)
-                            span.text-post-list
-                                p= task.title
-                        else
-                            .button-check
-                                i.fas.fa-check-circle(aria-hidden='true' id = task.id)
-                            span.text-post-list
-                                s= task.title
-                        .delete-button
-                            i(class="fas fa-times" id=task.id)
+        .sticky
+            h1 todos
+            .container
+                .form.d-flex
+                    button#select-all.btn.btn-group-toggle(data-toggle='buttons')
+                        label.btn.btn-primary
+                            | \/
+                    input#post-create(type="text" placeholder="What needs to be done")
+                .post-list
+                    each task in tasksList
+                        .container-post
+                            if task.isDone === false
+                                .button-check
+                                    i.far.fa-circle(aria-hidden='true' id = task.id)
+                                span.text-post-list
+                                    p= task.title
+                            else
+                                .button-check
+                                    i.fas.fa-check-circle(aria-hidden='true' id = task.id)
+                                span.text-post-list
+                                    s= task.title
+                            .delete-button
+                                i(class="fas fa-times" id=task.id)
 
-            .button-option
-                #all-button.btn.btn-danger(type="submit") All
-                #active-button.btn.btn-danger(type="submit") Active
-                #completed-button.btn.btn-danger(type="submit") Completed
-            .button-delete
-                #delete-all-completed-button.btn.btn-info(type="submit") Delete All Completed
-            span#item-left
+                .button-option
+                    #all-button.btn.btn-danger(type="submit") All
+                    #active-button.btn.btn-danger(type="submit") Active
+                    #completed-button.btn.btn-danger(type="submit") Completed
+                .button-delete
+                    #delete-all-completed-button.btn.btn-info(type="submit") Delete All Completed
+                span#item-left
     script(src="https://unpkg.com/axios/dist/axios.min.js")
     script(src="/task/post-create.js" type="text/javascript")

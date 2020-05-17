@@ -108,7 +108,7 @@ postCreate.addEventListener("keyup",async(event) => {
             method:"POST",
             url:'/',
             data:{
-                content:postCreate.value,
+                content:text,
                 request:"create"
             }
         })
@@ -170,13 +170,24 @@ document.addEventListener("click",()=>{
     if(event.target.tagName == "I"){
         if(event.target.className === "fas fa-times"){
             let containerPost = event.target.parentElement.parentElement;
+            let postList = containerPost.parentElement;
             containerPost.remove();
+            let children = postList.children;
+            children = [...children];
+            children = children.map((containerPost) => {
+                let isDone = containerPost.children[0].children[0].className === "far fa-circle" ? false: true;
+                return {
+                    id: containerPost.children[0].children[0].id,
+                    title:containerPost.children[1].children[0].outerText,
+                    isDone:isDone
+                }
+            })
             axios({
                 method: "POST",
                 url:"/",
                 data:{
                     request:"delete",
-                    id:event.target.id
+                    tasksList:children
                 }
             })
         }
@@ -256,30 +267,44 @@ selectAll.addEventListener("click",() => {
     let check = allEqual.every(child => child.children[0].children[0].className === "fas fa-check-circle");
     if(check){
         allEqual.map((child) => {
-            return child.children[0].children[0].className = "far fa-circle";
+            child.children[0].children[0].className = "far fa-circle";
         })
         allEqual.map((child) => {
-            return child.children[1].innerHTML = `<p>`+child.children[1].outerText+`</p>`;
+            child.children[1].innerHTML = `<p>`+child.children[1].outerText+`</p>`;
         })
-        axios({
-            method:"POST",
-            url:'/',
-            data:{
-                request:'allNotDone',
+        allEqual = allEqual.map((child) => {
+            return {
+                title: child.children[1].outerText,
+                isDone: false
             }
-        })
-    } else {
-        allEqual.map((child) => {
-            return child.children[0].children[0].className = "fas fa-check-circle";
-        })
-        allEqual.map((child) => {
-            return child.children[1].innerHTML = `<s>`+child.children[1].outerText+`</s>`;
         })
         axios({
             method:"POST",
             url:'/',
             data:{
                 request:'allDone',
+                tasksList:allEqual
+            }
+        })
+    } else {
+        allEqual.map((child) => {
+            child.children[0].children[0].className = "fas fa-check-circle";
+        })
+        allEqual.map((child) => {
+            child.children[1].innerHTML = `<s>`+child.children[1].outerText+`</s>`;
+        })
+        allEqual = allEqual.map((child) => {
+            return {
+                title: child.children[1].outerText,
+                isDone: true
+            }
+        })
+        axios({
+            method:"POST",
+            url:'/',
+            data:{
+                request:'allDone',
+                tasksList:allEqual
             }
         })
     }
@@ -287,18 +312,26 @@ selectAll.addEventListener("click",() => {
 
 deleteAllCompleted.addEventListener("click",()=>{
     let postListArr = [...postList.children];
-    postListArr.forEach(child => {
-        if (child.children[0].children[0].className === "fas fa-check-circle"){
-            let id = child.children[0].children[0].id;
-            child.remove();
-            axios({
-                method: "POST",
-                url:"/",
-                data:{
-                    request:"delete",
-                    id:id
-                }
-            })
+    postListArr.forEach(containerPost => {
+        if (containerPost.children[0].children[0].className === "fas fa-check-circle"){
+            containerPost.remove();
+        }
+    })
+    postListArr = [...postList.children];
+    postListArr = postListArr.map((containerPost) => {
+        let isDone = containerPost.children[0].children[0].className === "far fa-circle" ? false: true;
+        return {
+            id: containerPost.children[0].children[0].id,
+            title:containerPost.children[1].children[0].outerText,
+            isDone:isDone
+        }
+    })
+    axios({
+        method:"POST",
+        url:"/",
+        data:{
+            request:"deleteMany",
+            tasksList:postListArr
         }
     })
 })

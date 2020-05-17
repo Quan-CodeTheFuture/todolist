@@ -4,9 +4,8 @@ const app = express()
 const port = 3000
 
 
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-
+const cookieParser = require('cookie-parser');
 mongoose.connect(process.env.MONGODB_URL,{
     useFindAndModify: false,
     useNewUrlParser: true,
@@ -14,12 +13,16 @@ mongoose.connect(process.env.MONGODB_URL,{
 })
 
 const taskRoute = require('./routes/task.route');
+const sessionMiddleware = require('./middleware/auth.middleware');
 
 app.use(express.static('public'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+app.use(cookieParser());
 app.set('views','./views');
 app.set('view engine','pug');
+
+app.use(sessionMiddleware);
 
 app.use("/",taskRoute);
 app.listen(port, () => console.log(`Example app listening on port ` + port.toString()));

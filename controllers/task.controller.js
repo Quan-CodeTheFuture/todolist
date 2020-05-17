@@ -1,53 +1,72 @@
-const Task = require('../models/task.model');
+const Users = require('../models/users.model');
+const shortid = require('shortid');
 module.exports.getTaskWeb = async (req,res) => {
-    let data = await Task.find();
+    let dataUsers = await Users.findOne({_id:req.cookies.sessionId});
+
     res.render('index.pug',{
-        tasksList:data
+        tasksList:dataUsers.tasksList
     });
 }
 
-module.exports.getAPI = async(req,res) => {
-    let data = await Task.find();
-    data = data.map(task=>{
-        return {
-            id:task.id,
-            title: task.title,
-            isDone:task.isDone
-        }
-    });
-    res.json(data);
+module.exports.getSession = async(req,res) => {
+    res.redirect('/');
 }
 
 module.exports.postTaskWeb = async (req,res) => {
+    let user = await Users.findOne({_id:req.cookies.sessionId});
+    tasksList = user.tasksList;
     if(req.body.request === "create"){
-        let result = await Task.create({
+        let id = shortid.generate();
+        let request = {
             title: req.body.content,
             isDone: false
-        });
-        res.json({
-            id:result.id
-        });
-    } else if(req.body.request === "edit") {
-        if(req.body.id){
-            await Task.findOneAndUpdate({_id:req.body.id},{
-                isDone: req.body.isDone
-            });
         };
+        res.json({
+            id:id
+        });
+        request.id = id;
+        tasksList.push(request);
+        await Users.replaceOne({_id:req.cookies.sessionId},{
+            tasksList:tasksList
+        })
+        
+    } else if(req.body.request === "edit") {
+        for(let i = 0; i < tasksList.length; i++) {
+            if(tasksList[i].id === req.body.id){
+                tasksList[i].isDone = req.body.isDone;
+                break;
+            }
+        }
+        await Users.replaceOne({_id:req.cookies.sessionId},{
+            tasksList:tasksList
+        })
     } else if(req.body.request === "delete"){
-        await Task.deleteOne({_id:req.body.id});
+        await Users.replaceOne({_id:req.cookies.sessionId},{
+            tasksList:req.body.tasksList
+        })
     } else if(req.body.request === "editTitle"){
-        await Task.findOneAndUpdate({_id:req.body.id},{
-            title:req.body.title,
-            isDone:false,
+        for(let i = 0; i < tasksList.length; i++){
+            if(tasksList[i].id === req.body.id){
+                tasksList[i].title = req.body.title;
+                break;
+            }
+        }
+        await Users.replaceOne({_id:req.cookies.sessionId},{
+            tasksList:tasksList
         })
     } else if(req.body.request === "allDone"){
-        await Task.updateMany({isDone:false},{
-            isDone:true,
+        await Users.replaceOne({_id:req.cookies.sessionId},{
+            tasksList:req.body.tasksList
         })
+
     } else if (req.body.request === "allNotDone"){
-        await Task.updateMany({isDone:true},{
-            isDone:false,
-        });
+        await Users.replaceOne({_id:req.cookies.sessionId},{
+            tasksList:req.body.tasksList
+        })
+    } else if (req.body.request === "deleteMany"){
+        await Users.replaceOne({_id:req.cookies.sessionId},{
+            tasksList:req.body.tasksList
+        })
     }
     res.status(200).end();
 }
