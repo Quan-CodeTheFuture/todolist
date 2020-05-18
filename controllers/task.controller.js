@@ -8,10 +8,6 @@ module.exports.getTaskWeb = async (req,res) => {
     });
 }
 
-module.exports.getSession = async(req,res) => {
-    res.redirect('/');
-}
-
 module.exports.postTaskWeb = async (req,res) => {
     let user = await Users.findOne({_id:req.signedCookies.sessionId});
     tasksList = user.tasksList;
