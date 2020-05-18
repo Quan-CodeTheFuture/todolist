@@ -13,16 +13,17 @@ mongoose.connect(process.env.MONGODB_URL,{
 })
 
 const taskRoute = require('./routes/task.route');
-const sessionMiddleware = require('./middleware/auth.middleware');
+const sessionStorageRoute = require('./routes/session-storage.route.js');
+const sessionMiddleware = require('./middleware/session.middleware');
 
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieParser(process.env.SESSION_COOKIE));
 app.set('views','./views');
 app.set('view engine','pug');
 
-app.use(sessionMiddleware);
+app.use("/sessionapi",sessionStorageRoute);
+app.use("/",sessionMiddleware,taskRoute);
 
-app.use("/",taskRoute);
 app.listen(port, () => console.log(`Example app listening on port ` + port.toString()));

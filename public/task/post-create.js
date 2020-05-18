@@ -9,6 +9,19 @@ let itemLeft = document.getElementById("item-left");
 let mode = "all";
 let redundant = 0;
 let leftItem = [];
+(async ()=> {
+    if(!localStorage.getItem("session")){
+        await axios({
+            method:"POST",
+            url:"/",
+            data:{
+                request:"localStorage"
+            }
+        }).then(session =>{
+            localStorage.setItem("session",session.data.sessionId);
+        })
+    }
+})()
 
 function moveCursorToEnd(el) {
     el.selectionStart = el.selectionEnd = el.value.length;
